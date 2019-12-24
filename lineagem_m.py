@@ -32,6 +32,8 @@ def update_boss(query):
         return '更新成功'
     except Exception as e:
         print(e)
+        conn.rollback()
+        conn.close()
         return '更新失敗'
 
 def connector_db():
@@ -51,6 +53,7 @@ def connector_db():
     cur.execute(sql_null)
     result1 = cur.fetchall()
     df_result1 = pd.DataFrame(result1)
+    print(df_result1)
     if result:
         check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +28800))
         run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
