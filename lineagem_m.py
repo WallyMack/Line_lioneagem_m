@@ -58,14 +58,9 @@ def handle_message(event):
             conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
             cur = conn.cursor()
             sql_select = """
-            select king_name, '地圖('||region ||')' as region,
-            case when kill_date < (localtimestamp + interval '8 hour') then '* '|| to_char(COALESCE(guess_date, guess), 'HH24:MI:SS')
-            when kill_date > (localtimestamp + interval '8 hour') then to_char(kill_date, 'HH24:MI:SS') 
-            END as Rebirth_date
-            from(
-            select king_name, '地圖('||region ||')' as region , kill_date, guess_date, kill_date + interval '1 hour' * Rebirth_time as guess
-            from lioneagem_m where kill_date is not null ) main
-            order by Rebirth_date
+            select king_name,region,kill_date,Rebirth_time
+            from lioneagem_m where kill_date is not null
+            order by kill_date
             """
             sql_null = """
             select king_name, '地圖('||region ||')' as region ,'' from lioneagem_m where kill_date is null
@@ -76,12 +71,32 @@ def handle_message(event):
             result1 = cur.fetchall()
             df_result = pd.DataFrame(result)
             df_result1 = pd.DataFrame(result1)
-            list_ = [df_result.to_string(index=False, header=False), '\n', '==============', '\n',
+            check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
+            total_list = []
+            for i in result:
+                data = list(i)
+                if run_time - data[2] >= timedelta(hours=0):
+                    while run_time - data[2] >= timedelta(hours=0):
+                        data[2] = data[2] + timedelta(hours=i[-1])
+                    print('* ' + str(data[2]))
+                    data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
+                    data[3] = data[2]
+                    total_list.append(tuple(data))
+                else:
+                    data[3] = data[2]
+                    total_list.append(tuple(data))
+
+            value = pd.DataFrame(total_list).sort_values(3)
+            value.pop(3)
+            list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
             df_result1.to_string(index=False, header=False)]
             return_value = ''.join(list_)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=return_value))
+
+            if 
         else:
             line_bot_api.reply_message(
                 event.reply_token,
