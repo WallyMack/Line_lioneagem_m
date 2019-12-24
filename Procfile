@@ -1,1 +1,1 @@
-web: python lineagem_m.py
+web: python lineagem_m.py --log-file -
