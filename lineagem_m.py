@@ -140,7 +140,7 @@ def handle_message(event):
                 sql_systanx = sql_update.format(update_time,SQL[0])
                 return_status = update_boss(sql_systanx)
 
-            elif str.isalpha(update_message[1]) and len(update_message) == 3:
+            elif str.isalnum(update_message[1]) and len(update_message) == 3:
                 SQL = tuple(update_message[1:3])
                 yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() +28800))]
                 yyyymmdd.append(SQL[1])
