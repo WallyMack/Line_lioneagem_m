@@ -111,6 +111,9 @@ def handle_message(event):
 7. 輸入『help』可查看使用方式
 
             """
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=help_box))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
