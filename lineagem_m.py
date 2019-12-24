@@ -112,9 +112,8 @@ def handle_message(event):
             cur.execute(sql_null)
             result1 = cur.fetchall()
             df_result1 = pd.DataFrame(result1)
-            check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +28800))
             run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
-            print(check_time)
             total_list = []
             for i in result:
                 data = list(i)
