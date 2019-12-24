@@ -30,7 +30,7 @@ def update_boss(*object):
         conn.commit()
         conn.close()
         return '更新成功'
-    except Exceptions as e:
+    except Exception as e:
         print(e)
         return '更新失敗'
 
