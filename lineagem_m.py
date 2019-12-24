@@ -49,13 +49,15 @@ def connector_db():
         if run_time - data[2] >= timedelta(hours=0):
             while run_time - data[2] >= timedelta(hours=0):
                 data[2] = data[2] + timedelta(hours=i[-1])
-                print('* ' + str(data[2]))
-                data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
-                data[3] = data[2]
-                total_list.append(tuple(data))
+            data[3] = data[2]
+            print('* ' + str(data[2]))
+            data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
+            
         else:
             data[3] = data[2]
-            total_list.append(tuple(data))
+            data[2] = data[2].strftime("%H:%M:%S")
+            
+        total_list.append(tuple(data))
 
     value = pd.DataFrame(total_list).sort_values(3)
     value.pop(3)
