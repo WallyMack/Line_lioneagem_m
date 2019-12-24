@@ -18,7 +18,7 @@ handler = WebhookHandler('d012d795164d814bc796f34d91aa5562')
 
 @app.route("/test")
 def hello():
-    return "Hello World!!!"
+    return "Hello World!"
 
 
 @app.route("/callback", methods=['POST'])
