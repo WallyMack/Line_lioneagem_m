@@ -1,5 +1,6 @@
 #app.py
 import os
+import psycopg2 as pg
 from flask import Flask, request, abort
 
 from linebot import (
@@ -50,8 +51,14 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    
+
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
+        conn = pg.connect(host = '34.80.112.249',database = 'postgres',user = 'postgres', password = '1qaz@WSX', port = 5432)
+        cur = conn.cursor()
+        sql_select ="""select * from python_class_practices"""
+        cur.execute(sql_select)
+        result = cur.fetchall()
+        print(result)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=event.message.text))
