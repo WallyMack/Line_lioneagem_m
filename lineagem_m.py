@@ -114,6 +114,7 @@ def handle_message(event):
             df_result1 = pd.DataFrame(result1)
             check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
+            print(check_time)
             total_list = []
             for i in result:
                 data = list(i)
