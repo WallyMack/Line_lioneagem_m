@@ -149,7 +149,7 @@ def handle_message(event):
     update lioneagem_m set kill_date = timestamp '{}' + interval '1 hour' * Rebirth_time where king_name = '{}'
             """
                 sql_systanx = sql_update.format(update_time,SQL[0])
-                return_status = update_boss(sql_systanx
+                return_status = update_boss(sql_systanx)
 
             line_bot_api.reply_message(
                 event.reply_token,
