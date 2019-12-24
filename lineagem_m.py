@@ -22,6 +22,17 @@ line_bot_api = LineBotApi('3AlYHVFd4qJMZPPqkGJR3XtBQEJlsvpMTbJJthYmCTZtE2Qn9jL1z
 handler = WebhookHandler('d012d795164d814bc796f34d91aa5562')
 
 
+def update_boss(*object):
+    try:
+        conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+        cur = conn.cursor()
+        cur.execute(object)
+        conn.commit()
+        conn.close()
+        return '更新成功'
+    except Exceptions as e:
+        print(e)
+        return '更新失敗'
 
 def connector_db():
     conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
@@ -64,6 +75,7 @@ def connector_db():
     df_result1.to_string(index=False, header=False)]
     response_message = ''.join(list_)
     print(response_message)
+    conn.close()
     return response_message
 
 @app.route("/test")
@@ -114,6 +126,35 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=help_box))
+
+        elif str.lower(event.message.text).split(' ')[0] == 'kill':
+            update_message = event.message.text.split(' ')
+            if str.isdigit(update_message[1]) and len(update_message) == 3:
+                SQL = tuple(update_message[1:3])
+                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime())]
+                yyyymmdd.append(SQL[1])
+                update_time = ' '.join(yyyymmdd)
+                sql_update = """
+    update lioneagem_m set kill_date = timestamp '{}' + interval '1 hour' * Rebirth_time where region = {}
+            """
+                sql_systanx = sql_update.format(update_time,SQL[0])
+                return_status = update_boss(sql_systanx)
+
+            elif str.isalpha(update_message[1]) and len(update_message) == 3:
+                SQL = tuple(update_message[1:3])
+                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime())]
+                yyyymmdd.append(SQL[1])
+                update_time = ' '.join(yyyymmdd)
+                sql_update = """
+    update lioneagem_m set kill_date = timestamp '{}' + interval '1 hour' * Rebirth_time where king_name = '{}'
+            """
+                sql_systanx = sql_update.format(update_time,SQL[0])
+                return_status = update_boss(sql_systanx
+
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=return_status))
+
         else:
             line_bot_api.reply_message(
                 event.reply_token,
