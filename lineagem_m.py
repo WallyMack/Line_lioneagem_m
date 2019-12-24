@@ -40,7 +40,7 @@ def connector_db():
     cur.execute(sql_null)
     result1 = cur.fetchall()
     df_result1 = pd.DataFrame(result1)
-    check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +28800))
     run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
     total_list = []
     for i in result:
@@ -96,50 +96,21 @@ def handle_message(event):
 
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         if str.lower(event.message.text) == 'boss':
-            conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
-            cur = conn.cursor()
-            sql_select = """
-    select king_name,'地圖('||region ||')' as region,kill_date,Rebirth_time
-    from lioneagem_m where kill_date is not null
-    order by kill_date
-            """
-            sql_null = """
-    select king_name, '地圖('||region ||')' as region ,'' 
-    from lioneagem_m where kill_date is null
-    """
-            cur.execute(sql_select)
-            result = cur.fetchall()
-            cur.execute(sql_null)
-            result1 = cur.fetchall()
-            df_result1 = pd.DataFrame(result1)
-            check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +28800))
-            run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
-            total_list = []
-            for i in result:
-                data = list(i)
-                if run_time - data[2] >= timedelta(hours=0):
-                    while run_time - data[2] >= timedelta(hours=0):
-                        data[2] = data[2] + timedelta(hours=i[-1])
-
-                    data[3] = data[2]
-                    print('* ' + str(data[2]))
-                    data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
-            
-                else:
-                    data[3] = data[2]
-                    data[2] = data[2].strftime("%H:%M:%S")
-
-                total_list.append(tuple(data))
-
-            value = pd.DataFrame(total_list).sort_values(3)
-            value.pop(3)
-            list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
-            df_result1.to_string(index=False, header=False)]
-            response_message = ''.join(list_)
-            print(response_message)
+            response_message = connector_db()
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=response_message))
+
+        elif str.lower(event.message.text) == 'help':
+            help_box = """
+使用方式：
+1. 輸入『boss』查看王的重生時間
+2. 輸入『kill 王 死亡時間』可更新重生時間(例如『kill 奇岩 21:00:00』/ 『kill 15 21:00:00』) ，系統會推算下一隻為22:00:00
+4. Boss時間如果沒有更新，系統會自動幫你推算下一隻，並在時間前面加上＊號，如『奇岩(地圖18) - ＊ 01:14:05』
+5. 輸入『news』可以查看最新公告
+7. 輸入『help』可查看使用方式
+
+            """
         else:
             line_bot_api.reply_message(
                 event.reply_token,
