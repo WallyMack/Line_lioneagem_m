@@ -128,6 +128,7 @@ def handle_message(event):
 使用方式：
 1. 輸入『boss』查看王的重生時間
 2. 輸入『kill 王 死亡時間』可更新重生時間(例如『kill 奇岩 21:00:00』/ 『kill 15 21:00:00』) ，系統會推算下一隻為22:00:00
+3. 輸入『clean』就可清除所有王時間
 4. Boss時間如果沒有更新，系統會自動幫你推算下一隻，並在時間前面加上＊號，如『奇岩(地圖18) - ＊ 01:14:05』
 5. 輸入『news』可以查看最新公告
 7. 輸入『help』可查看使用方式
@@ -165,10 +166,16 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text=return_status))
 
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=event.message.text))
+        elif str.lower(event.message.text) == 'clean':
+
+            sql_update = """
+    update lioneagem_m set kill_date = null where clean = 0
+            """
+            return_status = update_boss(sql_systanx)
+            if return_status == '更新成功':
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='王時間全部清除完成'))
 
 
 if __name__ == "__main__":
