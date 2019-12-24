@@ -55,7 +55,7 @@ def handle_message(event):
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         conn = pg.connect(host = '34.80.112.249',database = 'postgres',user = 'postgres', password = '1qaz@WSX', port = 5432)
         cur = conn.cursor()
-        sql_select ="""select * from python_class_practices"""
+        sql_select ="""select * from class_python"""
         cur.execute(sql_select)
         result = cur.fetchall()
         print(result)
