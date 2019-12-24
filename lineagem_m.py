@@ -21,9 +21,46 @@ handler = WebhookHandler('d012d795164d814bc796f34d91aa5562')
 
 
 
-@app.route("/")
-def hell():
-    return "Hello World!"
+def connector_db():
+    conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+    cur = conn.cursor()
+    sql_select = """
+    select king_name,region,kill_date,Rebirth_time
+    from lioneagem_m where kill_date is not null
+    order by kill_date
+            """
+    sql_null = """
+    select king_name, '地圖('||region ||')' as region ,'' 
+    from lioneagem_m where kill_date is null
+    """
+    cur.execute(sql_select)
+    result = cur.fetchall()
+    cur.execute(sql_null)
+    result1 = cur.fetchall()
+    df_result = pd.DataFrame(result)
+    df_result1 = pd.DataFrame(result1)
+    check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
+    total_list = []
+    for i in result:
+        data = list(i)
+        if run_time - data[2] >= timedelta(hours=0):
+            while run_time - data[2] >= timedelta(hours=0):
+                data[2] = data[2] + timedelta(hours=i[-1])
+                print('* ' + str(data[2]))
+                data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
+                data[3] = data[2]
+                total_list.append(tuple(data))
+        else:
+            data[3] = data[2]
+            total_list.append(tuple(data))
+
+    value = pd.DataFrame(total_list).sort_values(3)
+    value.pop(3)
+    list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
+    df_result1.to_string(index=False, header=False)]
+    return_value = ''.join(list_)
+    return return_value
 
 @app.route("/test")
 def hello():
@@ -55,48 +92,10 @@ def handle_message(event):
 
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         if str.lower(event.message.text) == 'boss':
-            conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
-            cur = conn.cursor()
-            sql_select = """
-            select king_name,region,kill_date,Rebirth_time
-            from lioneagem_m where kill_date is not null
-            order by kill_date
-            """
-            sql_null = """
-            select king_name, '地圖('||region ||')' as region ,'' from lioneagem_m where kill_date is null
-            """
-            cur.execute(sql_select)
-            result = cur.fetchall()
-            cur.execute(sql_null)
-            result1 = cur.fetchall()
-            df_result = pd.DataFrame(result)
-            df_result1 = pd.DataFrame(result1)
-            check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
-            total_list = []
-            for i in result:
-                data = list(i)
-                if run_time - data[2] >= timedelta(hours=0):
-                    while run_time - data[2] >= timedelta(hours=0):
-                        data[2] = data[2] + timedelta(hours=i[-1])
-                    print('* ' + str(data[2]))
-                    data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
-                    data[3] = data[2]
-                    total_list.append(tuple(data))
-                else:
-                    data[3] = data[2]
-                    total_list.append(tuple(data))
-
-            value = pd.DataFrame(total_list).sort_values(3)
-            value.pop(3)
-            list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
-            df_result1.to_string(index=False, header=False)]
-            return_value = ''.join(list_)
+            return_value = connector_db()
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=return_value))
-
-            if 
         else:
             line_bot_api.reply_message(
                 event.reply_token,
