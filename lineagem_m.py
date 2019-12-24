@@ -1,6 +1,7 @@
 #app.py
 import os
 import psycopg2 as pg
+import pandas as pd
 from flask import Flask, request, abort
 
 from linebot import (
@@ -54,7 +55,7 @@ def handle_message(event):
 
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         if str.lower(event.message.text) == 'boss':
-            conn = pg.connect(host = '34.80.112.249',database = 'postgres',user = 'postgres', password = '1qaz@WSX', port = 5432)
+            conn = pg.connect(host = '34.80.112.249',database = 'Line',user = 'postgres', password = '1qaz@WSX', port = 5432)
             cur = conn.cursor()
             sql_select = """
             select king_name, '地圖('||region ||')' as region ,kill_date from lioneagem_m where kill_date is not null order by kill_date
@@ -69,9 +70,10 @@ def handle_message(event):
             df_result = pd.DataFrame(result)
             df_result1 = pd.DataFrame(result1)
             list_ = [df_result.to_string(index=False ,header = False),'\n','==============','\n', df_result1.to_string(index=False,header = False)]
+            return_value = ''.join(list_)
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text=''.join(list_)))
+                TextSendMessage(text=return_value))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
