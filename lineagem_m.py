@@ -27,7 +27,7 @@ def connector_db():
     conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
     cur = conn.cursor()
     sql_select = """
-    select king_name,region,kill_date,Rebirth_time
+    select king_name,地圖('||region ||')' as region,kill_date,Rebirth_time
     from lioneagem_m where kill_date is not null
     order by kill_date
             """
@@ -39,7 +39,6 @@ def connector_db():
     result = cur.fetchall()
     cur.execute(sql_null)
     result1 = cur.fetchall()
-    df_result = pd.DataFrame(result)
     df_result1 = pd.DataFrame(result1)
     check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
