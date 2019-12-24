@@ -171,7 +171,7 @@ def handle_message(event):
             sql_update = """
     update lioneagem_m set kill_date = null where clean = 0
             """
-            return_status = update_boss(sql_systanx)
+            return_status = update_boss(sql_update)
             if return_status == '更新成功':
                 line_bot_api.reply_message(
                     event.reply_token,
