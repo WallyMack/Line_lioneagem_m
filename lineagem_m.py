@@ -58,10 +58,10 @@ def handle_message(event):
             conn = pg.connect(host = '34.80.112.249',database = 'Line',user = 'postgres', password = '1qaz@WSX', port = 5432)
             cur = conn.cursor()
             sql_select = """
-            select king_name, '地圖('||region ||')' as region ,kill_date from lioneagem_m where kill_date is not null order by kill_date
+            select king_name, '地圖('||region ||')' as region ,to_char(kill_date, 'HH24:MI:SS') from lioneagem_m where kill_date is not null order by kill_date
             """
             sql_null = """
-            select king_name, '地圖('||region ||')' as region ,kill_date from lioneagem_m where kill_date is null
+            select king_name, '地圖('||region ||')' as region ,'' from lioneagem_m where kill_date is null
             """
             cur.execute(sql_select)
             result = cur.fetchall()
