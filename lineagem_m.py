@@ -131,7 +131,7 @@ def handle_message(event):
             update_message = event.message.text.split(' ')
             if str.isdigit(update_message[1]) and len(update_message) == 3:
                 SQL = tuple(update_message[1:3])
-                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime())]
+                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() +28800))]
                 yyyymmdd.append(SQL[1])
                 update_time = ' '.join(yyyymmdd)
                 sql_update = """
@@ -142,7 +142,7 @@ def handle_message(event):
 
             elif str.isalpha(update_message[1]) and len(update_message) == 3:
                 SQL = tuple(update_message[1:3])
-                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime())]
+                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() +28800))]
                 yyyymmdd.append(SQL[1])
                 update_time = ' '.join(yyyymmdd)
                 sql_update = """
