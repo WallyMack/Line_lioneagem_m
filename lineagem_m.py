@@ -69,7 +69,7 @@ def handle_message(event):
             result1 = cur.fetchall()
             df_result = pd.DataFrame(result)
             df_result1 = pd.DataFrame(result1)
-            list_ = [df_result.to_string(index=False ,header = False),'\n','==============','\n', df_result1.to_string(index=False,header = False)]
+            list_ = [df_result.to_string(index=False ,header = False, justify = 'left'),'\n','==============','\n', df_result1.to_string(index=False,header = False, justify = 'left')]
             return_value = ''.join(list_)
             line_bot_api.reply_message(
                 event.reply_token,
