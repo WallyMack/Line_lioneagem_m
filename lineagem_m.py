@@ -56,7 +56,7 @@ def connector_db():
         else:
             data[3] = data[2]
             data[2] = data[2].strftime("%H:%M:%S")
-            
+
         total_list.append(tuple(data))
 
     value = pd.DataFrame(total_list).sort_values(3)
@@ -97,6 +97,7 @@ def handle_message(event):
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         if str.lower(event.message.text) == 'boss':
             return_value = connector_db()
+            print(return_value)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=return_value))
