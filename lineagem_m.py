@@ -62,8 +62,9 @@ def connector_db():
     value.pop(3)
     list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
     df_result1.to_string(index=False, header=False)]
-    return_value = ''.join(list_)
-    return return_value
+    response_message = ''.join(list_)
+    print(response_message)
+    return response_message
 
 @app.route("/test")
 def hello():
@@ -95,11 +96,11 @@ def handle_message(event):
 
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         if str.lower(event.message.text) == 'boss':
-            return_value = connector_db()
-            print(return_value)
+            response_message = connector_db()
+            print(response_message)
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text=return_value))
+                TextSendMessage(text=response_message))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
