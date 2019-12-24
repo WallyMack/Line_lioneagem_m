@@ -55,10 +55,17 @@ def handle_message(event):
 
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         if str.lower(event.message.text) == 'boss':
-            conn = pg.connect(host = '34.80.112.249',database = 'Line',user = 'postgres', password = '1qaz@WSX', port = 5432)
+            conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
             cur = conn.cursor()
             sql_select = """
-            select king_name, '地圖('||region ||')' as region ,to_char(kill_date, 'HH24:MI:SS') from lioneagem_m where kill_date is not null order by kill_date
+            select king_name, '地圖('||region ||')' as region,
+            case when kill_date < (localtimestamp + interval '8 hour') then '* '|| to_char(COALESCE(guess_date, guess), 'HH24:MI:SS')
+            when kill_date > (localtimestamp + interval '8 hour') then to_char(kill_date, 'HH24:MI:SS') 
+            END as Rebirth_date
+            from(
+            select king_name, '地圖('||region ||')' as region , kill_date, guess_date, kill_date + interval '1 hour' * Rebirth_time as guess
+            from lioneagem_m where kill_date is not null ) main
+            order by Rebirth_date
             """
             sql_null = """
             select king_name, '地圖('||region ||')' as region ,'' from lioneagem_m where kill_date is null
@@ -69,7 +76,8 @@ def handle_message(event):
             result1 = cur.fetchall()
             df_result = pd.DataFrame(result)
             df_result1 = pd.DataFrame(result1)
-            list_ = [df_result.to_string(index=False ,header = False, justify = 'left'),'\n','==============','\n', df_result1.to_string(index=False,header = False, justify = 'left')]
+            list_ = [df_result.to_string(index=False, header=False), '\n', '==============', '\n',
+            df_result1.to_string(index=False, header=False)]
             return_value = ''.join(list_)
             line_bot_api.reply_message(
                 event.reply_token,
