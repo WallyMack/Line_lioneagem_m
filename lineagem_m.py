@@ -27,7 +27,7 @@ def connector_db():
     conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
     cur = conn.cursor()
     sql_select = """
-    select king_name,地圖('||region ||')' as region,kill_date,Rebirth_time
+    select king_name,'地圖('||region ||')' as region,kill_date,Rebirth_time
     from lioneagem_m where kill_date is not null
     order by kill_date
             """
