@@ -2,6 +2,8 @@
 import os
 import psycopg2 as pg
 import pandas as pd
+import time
+from datetime import datetime, timedelta
 from flask import Flask, request, abort
 
 from linebot import (
