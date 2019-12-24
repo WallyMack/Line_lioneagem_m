@@ -51,32 +51,39 @@ def connector_db():
     cur.execute(sql_null)
     result1 = cur.fetchall()
     df_result1 = pd.DataFrame(result1)
-    check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +28800))
-    run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
-    total_list = []
-    for i in result:
-        data = list(i)
-        if run_time - data[2] >= timedelta(hours=0):
-            while run_time - data[2] >= timedelta(hours=0):
-                data[2] = data[2] + timedelta(hours=i[-1])
-            data[3] = data[2]
-            print('* ' + str(data[2]))
-            data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
-            
-        else:
-            data[3] = data[2]
-            data[2] = data[2].strftime("%H:%M:%S")
+    if result:
+        check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +28800))
+        run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
+        total_list = []
+        for i in result:
+            data = list(i)
+            if run_time - data[2] >= timedelta(hours=0):
+                while run_time - data[2] >= timedelta(hours=0):
+                    data[2] = data[2] + timedelta(hours=i[-1])
+                data[3] = data[2]
+                print('* ' + str(data[2]))
+                data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
+                
+            else:
+                data[3] = data[2]
+                data[2] = data[2].strftime("%H:%M:%S")
 
-        total_list.append(tuple(data))
+            total_list.append(tuple(data))
 
-    value = pd.DataFrame(total_list).sort_values(3)
-    value.pop(3)
-    list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
-    df_result1.to_string(index=False, header=False)]
-    response_message = ''.join(list_)
-    print(response_message)
-    conn.close()
-    return response_message
+        value = pd.DataFrame(total_list).sort_values(3)
+        value.pop(3)
+        list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
+        df_result1.to_string(index=False, header=False)]
+        response_message = ''.join(list_)
+        print(response_message)
+        conn.close()
+        return response_message
+    else:
+        list_ = ['==============', '\n', df_result1.to_string(index=False, header=False)]
+        response_message = ''.join(list_)
+        print(response_message)
+        conn.close()
+        return response_message
 
 @app.route("/test")
 def hello():
