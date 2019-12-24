@@ -22,11 +22,11 @@ line_bot_api = LineBotApi('3AlYHVFd4qJMZPPqkGJR3XtBQEJlsvpMTbJJthYmCTZtE2Qn9jL1z
 handler = WebhookHandler('d012d795164d814bc796f34d91aa5562')
 
 
-def update_boss(*object):
+def update_boss(query):
     try:
         conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
         cur = conn.cursor()
-        cur.execute(object)
+        cur.execute(query)
         conn.commit()
         conn.close()
         return '更新成功'
