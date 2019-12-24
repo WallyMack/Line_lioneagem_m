@@ -56,13 +56,22 @@ def handle_message(event):
         if str.lower(event.message.text) == 'boss':
             conn = pg.connect(host = '34.80.112.249',database = 'postgres',user = 'postgres', password = '1qaz@WSX', port = 5432)
             cur = conn.cursor()
-            sql_select ="""select * from class_python"""
+            sql_select = """
+            select king_name, '地圖('||region ||')' as region ,kill_date from lioneagem_m where kill_date is not null order by kill_date
+            """
+            sql_null = """
+            select king_name, '地圖('||region ||')' as region ,kill_date from lioneagem_m where kill_date is null
+            """
             cur.execute(sql_select)
             result = cur.fetchall()
-            print(result)
+            cur.execute(sql_null)
+            result1 = cur.fetchall()
+            df_result = pd.DataFrame(result)
+            df_result1 = pd.DataFrame(result1)
+            list_ = [df_result.to_string(index=False ,header = False),'\n','==============','\n', df_result1.to_string(index=False,header = False)]
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text=str(result)))
+                TextSendMessage(text=''.join(list_)))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
