@@ -19,6 +19,7 @@ from linebot.models import (
 )
 
 app = Flask(__name__)
+turn_on = False
 sched = BlockingScheduler()
 line_bot_api = LineBotApi(
     '3AlYHVFd4qJMZPPqkGJR3XtBQEJlsvpMTbJJthYmCTZtE2Qn9jL1zm0pP436TIOgMs7RpmXPM9UM1SML94pvsuxd6cimxyqWvGSUWcN/JlCtkj4YAQCQOGSjJOe9WVaOuCtrWsNX3nlZLwj6Ds9jQgdB04t89/1O/w1cDnyilFU=')
@@ -120,9 +121,17 @@ def connector_db():
 
 
 @app.route("/")
-def hello():
-    sched.start()
-    return "Hello World!"
+def switch():
+    global turn_on
+    status = not turn_on
+    if not status:
+        turn_on = False
+        sched.shutdown()
+        yield '自動提醒關閉'
+    else:
+        turn_on = True
+        yield '自動提醒開啟'
+        sched.start()
 
 
 @app.route("/callback", methods=['POST'])
@@ -223,6 +232,13 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text='王時間全部清除完成'))
 
+        elif str.lower(event.message.text) == '!alert':
+            value = switch()
+            ans = list(value)
+            line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='{}'.format(ans[0])))
+
 #@sched.scheduled_job('interval', minutes=2)
 def push_boss_time():
     try:
@@ -241,7 +257,8 @@ order by kill_date
         now_time = datetime.strptime(now_timestamp, '%Y-%m-%d %H:%M:%S')
         boss_list = []
         for i in result:
-            if i[2] - now_time < timedelta(minutes=10):
+            value = (i[2] - now_time)
+            if value.seconds < 600:
                 value = i[2] - now_time
                 value = re.sub(r'\..*','',str(value))
                 hours = value.split(':')[1]
