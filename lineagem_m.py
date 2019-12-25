@@ -227,3 +227,4 @@ def timed_job():
 
 if __name__ == "__main__":
     app.run('0.0.0.0', port=os.environ['PORT'])
+    sched.start()
