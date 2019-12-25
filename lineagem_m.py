@@ -178,7 +178,7 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text=help_box))
 
-        elif len(str.lower(event.message.text).split(' ')) == 2:
+        elif len(str.lower(event.message.text).split(' ')) == 2 and str.isdigit(event.message.text.split(' ')[1].replace(':','')):
             update_message = event.message.text.split(' ')
             if str.isdigit(update_message[0]):
                 boss = query_boss(update_message[0])
