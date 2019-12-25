@@ -5,6 +5,7 @@ import pandas as pd
 import time
 from datetime import datetime, timedelta
 from flask import Flask, request, abort
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -17,7 +18,7 @@ from linebot.models import (
 )
 
 app = Flask(__name__)
-
+sched = BlockingScheduler()
 line_bot_api = LineBotApi(
     '3AlYHVFd4qJMZPPqkGJR3XtBQEJlsvpMTbJJthYmCTZtE2Qn9jL1zm0pP436TIOgMs7RpmXPM9UM1SML94pvsuxd6cimxyqWvGSUWcN/JlCtkj4YAQCQOGSjJOe9WVaOuCtrWsNX3nlZLwj6Ds9jQgdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('d012d795164d814bc796f34d91aa5562')
@@ -220,6 +221,9 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text='王時間全部清除完成'))
 
+@sched.scheduled_job('interval', seconds=3)
+def timed_job():
+    print('我愛你中國！')
 
 if __name__ == "__main__":
     app.run('0.0.0.0', port=os.environ['PORT'])
