@@ -1,4 +1,4 @@
-#app.py
+# app.py
 import os
 import psycopg2 as pg
 import pandas as pd
@@ -18,8 +18,35 @@ from linebot.models import (
 
 app = Flask(__name__)
 
-line_bot_api = LineBotApi('3AlYHVFd4qJMZPPqkGJR3XtBQEJlsvpMTbJJthYmCTZtE2Qn9jL1zm0pP436TIOgMs7RpmXPM9UM1SML94pvsuxd6cimxyqWvGSUWcN/JlCtkj4YAQCQOGSjJOe9WVaOuCtrWsNX3nlZLwj6Ds9jQgdB04t89/1O/w1cDnyilFU=')
+line_bot_api = LineBotApi(
+    '3AlYHVFd4qJMZPPqkGJR3XtBQEJlsvpMTbJJthYmCTZtE2Qn9jL1zm0pP436TIOgMs7RpmXPM9UM1SML94pvsuxd6cimxyqWvGSUWcN/JlCtkj4YAQCQOGSjJOe9WVaOuCtrWsNX3nlZLwj6Ds9jQgdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('d012d795164d814bc796f34d91aa5562')
+
+def query_boss(query):
+    try:
+        conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+        cur = conn.cursor()
+        if str.isdigit(query):
+            sql = """
+    select region
+    from lioneagem_m where region in ({})
+            """.format(query)
+        elif str.isalnum(query):
+            sql = """
+            select king_name
+            from lioneagem_m where king_name in ('{}')
+                    """.format(query)
+        cur.execute(sql)
+        result = cur.fetchall()
+        conn.close()
+        return result
+
+    except Exception as e:
+        print(e)
+        conn.rollback()
+        conn.close()
+        return '查詢失敗'
+
 
 
 def update_boss(query):
@@ -35,6 +62,7 @@ def update_boss(query):
         conn.rollback()
         conn.close()
         return '更新失敗'
+
 
 def connector_db():
     conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
@@ -55,7 +83,7 @@ def connector_db():
     df_result1 = pd.DataFrame(result1)
     print(df_result1)
     if result:
-        check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +28800))
+        check_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 28800))
         run_time = datetime.strptime(check_time, '%Y-%m-%d %H:%M:%S')
         total_list = []
         for i in result:
@@ -66,7 +94,7 @@ def connector_db():
                 data[3] = data[2]
                 print('* ' + str(data[2]))
                 data[2] = '* ' + str(data[2].strftime("%H:%M:%S"))
-                
+
             else:
                 data[3] = data[2]
                 data[2] = data[2].strftime("%H:%M:%S")
@@ -76,7 +104,7 @@ def connector_db():
         value = pd.DataFrame(total_list).sort_values(3)
         value.pop(3)
         list_ = [value.to_string(index=False, header=False), '\n', '==============', '\n',
-        df_result1.to_string(index=False, header=False)]
+                 df_result1.to_string(index=False, header=False)]
         response_message = ''.join(list_)
         print(response_message)
         conn.close()
@@ -87,6 +115,7 @@ def connector_db():
         print(response_message)
         conn.close()
         return response_message
+
 
 @app.route("/test")
 def hello():
@@ -115,7 +144,6 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         if str.lower(event.message.text) == 'boss':
             response_message = connector_db()
@@ -130,51 +158,56 @@ def handle_message(event):
 2. 輸入『kill 王 死亡時間』可更新重生時間(例如『kill 奇岩 21:00:00』/ 『kill 15 21:00:00』) ，系統會推算下一隻為22:00:00
 3. 輸入『clean』就可清除所有王時間
 4. Boss時間如果沒有更新，系統會自動幫你推算下一隻，並在時間前面加上＊號，如『奇岩(地圖18) - ＊ 01:14:05』
-5. 輸入『news』可以查看最新公告
-7. 輸入『help』可查看使用方式
+5. 輸入『help』可查看使用方式
 
             """
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=help_box))
 
-        elif str.lower(event.message.text).split(' ')[0] == 'kill':
+        elif len(str.lower(event.message.text).split(' ')) == 2:
             update_message = event.message.text.split(' ')
-            if str.isdigit(update_message[1]) and len(update_message) == 3:
+            if str.isdigit(update_message[0]):
+                boss = query_boss(update_message[0])
+                if not boss:
+                    return_status = '{} : 這打王區域不存在'.format(update_message[0])
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=return_status))
                 SQL = tuple(update_message[1:3])
-                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() +28800))]
+                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() + 28800))]
                 yyyymmdd.append(SQL[1])
                 update_time = ' '.join(yyyymmdd)
                 sql_update = """
     update lioneagem_m set kill_date = timestamp '{}' + interval '1 hour' * Rebirth_time where region = {}
             """
-                sql_systanx = sql_update.format(update_time,SQL[0])
+                sql_systanx = sql_update.format(update_time, SQL[0])
                 return_status = update_boss(sql_systanx)
 
                 line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=return_status))
+                    event.reply_token,
+                    TextSendMessage(text=return_status))
 
-            elif str.isalnum(update_message[1]) and len(update_message) == 3:
+            elif str.isalnum(update_message[0]):
+                boss = query_boss(update_message[0])
+                if not boss:
+                    return_status = '{} : 這隻王不存在'.format(update_message[0])
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=return_status))
                 SQL = tuple(update_message[1:3])
-                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() +28800))]
+                yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() + 28800))]
                 yyyymmdd.append(SQL[1])
                 update_time = ' '.join(yyyymmdd)
                 sql_update = """
     update lioneagem_m set kill_date = timestamp '{}' + interval '1 hour' * Rebirth_time where king_name = '{}'
             """
-                sql_systanx = sql_update.format(update_time,SQL[0])
+                sql_systanx = sql_update.format(update_time, SQL[0])
                 return_status = update_boss(sql_systanx)
 
                 line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=return_status))
-
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='格式錯誤，請注意'))
-
-            
+                    event.reply_token,
+                    TextSendMessage(text=return_status))
 
         elif str.lower(event.message.text) == 'clean':
 
