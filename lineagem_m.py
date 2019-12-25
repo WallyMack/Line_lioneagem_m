@@ -174,7 +174,7 @@ def handle_message(event):
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextSendMessage(text=return_status))
-                SQL = tuple(update_message[1:3])
+                SQL = tuple(update_message)
                 yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() + 28800))]
                 yyyymmdd.append(SQL[1])
                 update_time = ' '.join(yyyymmdd)
@@ -195,7 +195,7 @@ def handle_message(event):
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextSendMessage(text=return_status))
-                SQL = tuple(update_message[1:3])
+                SQL = tuple(update_message)
                 yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() + 28800))]
                 yyyymmdd.append(SQL[1])
                 update_time = ' '.join(yyyymmdd)
