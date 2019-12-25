@@ -171,6 +171,7 @@ def handle_message(event):
 3. 輸入『clean』就可清除所有王時間
 4. Boss時間如果沒有更新，系統會自動幫你推算下一隻，並在時間前面加上＊號，如『奇岩(地圖18) - ＊ 01:14:05』
 5. 輸入『help』可查看使用方式
+6. 輸入『!alert』可開啟/關閉自動提醒功能
 
             """
             line_bot_api.reply_message(
