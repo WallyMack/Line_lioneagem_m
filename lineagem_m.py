@@ -3,6 +3,7 @@ import os
 import psycopg2 as pg
 import pandas as pd
 import time
+import re
 from datetime import datetime, timedelta
 from flask import Flask, request, abort
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -157,7 +158,7 @@ def handle_message(event):
             help_box = """
 使用方式：
 1. 輸入『boss』查看王的重生時間
-2. 輸入『kill 王 死亡時間』可更新重生時間(例如『kill 奇岩 21:00:00』/ 『kill 15 21:00:00』) ，系統會推算下一隻為22:00:00
+2. 輸入『王 死亡時間』可更新重生時間(例如『奇岩 21:00:00』/ 『15 21:00:00』) ，系統會推算下一隻為22:00:00
 3. 輸入『clean』就可清除所有王時間
 4. Boss時間如果沒有更新，系統會自動幫你推算下一隻，並在時間前面加上＊號，如『奇岩(地圖18) - ＊ 01:14:05』
 5. 輸入『help』可查看使用方式
@@ -222,9 +223,40 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text='王時間全部清除完成'))
 
-@sched.scheduled_job('interval', seconds=3)
-def timed_job():
-    print('我愛你中國！')
+@sched.scheduled_job('interval', minutes=2)
+def push_boss_time():
+    try:
+        conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+        cur = conn.cursor()
+        Sql = """
+select king_name, region, kill_date
+from lioneagem_m 
+where kill_date is not null
+order by kill_date
+        """
+        cur.execute(Sql)
+        result = cur.fetchall()
+        conn.close()
+        now_timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 28800))
+        now_time = datetime.strptime(now_timestamp, '%Y-%m-%d %H:%M:%S')
+        boss_list = []
+        for i in result:
+            if i[2] - now_time < timedelta(minutes=10):
+                value = i[2] - now_time
+                value = re.sub(r'\..*','',str(value))
+                hours = value.split(':')[1]
+                mins = value.split(':')[2]
+                boss_list.append(tuple([i[0],i[1],hours,mins]))
+
+        message_box = []
+        for i in boss_list:
+            message_box.append('【提醒】{} 地圖的 {} 將在 {}分鐘 {}秒後重生\n'.format(i[1], i[0], i[2], i[3]))
+        if message_box:
+            line_bot_api.push_message("C40c1a34472356970900a8a99dd4d8531", TextSendMessage(text='{}'.format(''.join(message_box))))
+    except Exception as e:
+        print('check boss time error: ', e)
+        conn.rollback()
+        conn.close()
 
 if __name__ == "__main__":
     app.run('0.0.0.0', port=os.environ['PORT'])
