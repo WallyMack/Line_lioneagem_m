@@ -223,7 +223,7 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text='王時間全部清除完成'))
 
-@sched.scheduled_job('interval', minutes=2)
+#@sched.scheduled_job('interval', minutes=2)
 def push_boss_time():
     try:
         conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
