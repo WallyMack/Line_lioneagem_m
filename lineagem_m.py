@@ -151,6 +151,10 @@ def handle_message(event):
                 sql_systanx = sql_update.format(update_time,SQL[0])
                 return_status = update_boss(sql_systanx)
 
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=return_status))
+
             elif str.isalnum(update_message[1]) and len(update_message) == 3:
                 SQL = tuple(update_message[1:3])
                 yyyymmdd = [time.strftime("%Y-%m-%d", time.localtime(time.time() +28800))]
@@ -162,9 +166,15 @@ def handle_message(event):
                 sql_systanx = sql_update.format(update_time,SQL[0])
                 return_status = update_boss(sql_systanx)
 
-            line_bot_api.reply_message(
+                line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=return_status))
+
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='格式錯誤，請注意'))
+
+            
 
         elif str.lower(event.message.text) == 'clean':
 
