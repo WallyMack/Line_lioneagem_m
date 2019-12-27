@@ -121,16 +121,20 @@ def connector_db():
 
 
 @app.route("/")
-def switch():
+def switch(reply_token):
     global turn_on
     status = not turn_on
     if not status:
         turn_on = False
+        line_bot_api.reply_message(
+                    reply_token,
+                    TextSendMessage(text='自動提醒關閉'))
         sched.shutdown()
-        yield '自動提醒關閉'
     else:
         turn_on = True
-        yield '自動提醒開啟'
+        line_bot_api.reply_message(
+                    reply_token,
+                    TextSendMessage(text='自動提醒開啟'))
         sched.start()
 
 
@@ -234,15 +238,13 @@ def handle_message(event):
                     TextSendMessage(text='王時間全部清除完成'))
 
         elif str.lower(event.message.text) == '!alert':
-            value = switch()
-            ans = list(value)
-            line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text='{}'.format(ans[0])))
+            switch(event.reply_token)
+            
 
 @sched.scheduled_job('interval', minutes=2)
 def push_boss_time():
     try:
+        print('check boss time ready push message')
         conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
         cur = conn.cursor()
         Sql = """
