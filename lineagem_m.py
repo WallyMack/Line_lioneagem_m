@@ -22,12 +22,12 @@ app = Flask(__name__)
 turn_on = False
 sched = BlockingScheduler()
 line_bot_api = LineBotApi(
-    '3AlYHVFd4qJMZPPqkGJR3XtBQEJlsvpMTbJJthYmCTZtE2Qn9jL1zm0pP436TIOgMs7RpmXPM9UM1SML94pvsuxd6cimxyqWvGSUWcN/JlCtkj4YAQCQOGSjJOe9WVaOuCtrWsNX3nlZLwj6Ds9jQgdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('d012d795164d814bc796f34d91aa5562')
+    'LineBot Token')
+handler = WebhookHandler('LineBot ID')
 
 def query_boss(query):
     try:
-        conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+        conn = pg.connect(host='IP', database='DBNAME', user='USER_NAME', password='password', port=port_num)
         cur = conn.cursor()
         if str.isdigit(query):
             sql = """
@@ -54,7 +54,7 @@ def query_boss(query):
 
 def update_boss(query):
     try:
-        conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+        conn = pg.connect(host='IP', database='DB_NAME', user='USER_NAME', password='password', port=port_num)
         cur = conn.cursor()
         cur.execute(query)
         conn.commit()
@@ -68,7 +68,7 @@ def update_boss(query):
 
 
 def connector_db():
-    conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+    conn = pg.connect(host='IP', database='DB_NAME', user='USER_NAME', password='password', port=port_num)
     cur = conn.cursor()
     sql_select = """
     select king_name,'地圖('||region ||')' as region,kill_date,Rebirth_time
@@ -245,7 +245,7 @@ def handle_message(event):
 def push_boss_time():
     try:
         print('check boss time ready push message')
-        conn = pg.connect(host='34.80.112.249', database='Line', user='postgres', password='1qaz@WSX', port=5432)
+        conn = pg.connect(host='IP', database='DB_NAME', user='USER_NAME', password='password', port=port_num)
         cur = conn.cursor()
         Sql = """
 select king_name, region, kill_date
@@ -272,7 +272,7 @@ order by kill_date
         for i in boss_list:
             message_box.append('【提醒】{} 地圖的 {} 將在 {}分鐘 {}秒後重生\n'.format(i[1], i[0], i[2], i[3]))
         if message_box:
-            line_bot_api.push_message("C40c1a34472356970900a8a99dd4d8531", TextSendMessage(text='{}'.format(''.join(message_box))))
+            line_bot_api.push_message("Line room ID", TextSendMessage(text='{}'.format(''.join(message_box))))
     except Exception as e:
         print('check boss time error: ', e)
         conn.rollback()
