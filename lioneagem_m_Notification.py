@@ -1,4 +1,3 @@
-```python
 import os
 import psycopg2 as pg
 import pandas as pd
@@ -78,4 +77,3 @@ update lioneagem_m set kill_date = null where region = {}
         print('check boss time error: ', e, flush=True)
         conn.rollback()
         conn.close()
-```
