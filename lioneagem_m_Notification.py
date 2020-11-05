@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 def update_boss(query):
     try:
-        conn = pg.connect(host='127.0.0.1', database='line', user='postgres', password='1qaz@WSX', port=5432)
+        conn = pg.connect(host='IP', database='DB_NAME', user='USER_NAME', password='password', port=port_num)
         cur = conn.cursor()
         cur.execute(query)
         conn.commit()
@@ -35,7 +35,7 @@ def lineNotifyMessage(token, msg):
 if __name__ == "__main__":
     try:
         print('check boss time ready push message', flush=True)
-        conn = pg.connect(host='127.0.0.1', database='line', user='postgres', password='1qaz@WSX', port=5432)
+        conn = pg.connect(host='IP', database='DB_NAME', user='USER_NAME', password='password', port=port_num)
         cur = conn.cursor()
         Sql = """
 select king_name, region, kill_date
@@ -70,7 +70,7 @@ update lioneagem_m set kill_date = null where region = {}
             message_box.append('【提醒】{} 地圖的 {} 將在 {}分鐘 {}秒後重生\n'.format(i[1], i[0], i[2], i[3]))
         if message_box:
             print(now_time, message_box, flush=True)
-            token = 'sEBvtvnNwAtdLxYcVtHyrp643e2hI25I2KIbWaW9gq7'
+            token = 'lineNotifytoken'
             lineNotifyMessage(token, message_box)
             # line_bot_api.push_message("C40c1a34472356970900a8a99dd4d8531", TextSendMessage(text='{}'.format(''.join(message_box))))
     except Exception as e:
